@@ -4,10 +4,12 @@ const db = new Database('data.db');
 db.prepare(`
   CREATE TABLE IF NOT EXISTS articles (
     id TEXT PRIMARY KEY,
+    sourceUrl TEXT ,
     title TEXT,
     content TEXT,
     topic TEXT,
     source TEXT,
+    image_url TEXT,
     published_at TEXT
   )
 `).run();
@@ -27,6 +29,7 @@ db.prepare(`
     level TEXT,
     reading_time INTEGER,
     source_url TEXT,
+    image_url TEXT,
     published_at TEXT
   )
 `).run();

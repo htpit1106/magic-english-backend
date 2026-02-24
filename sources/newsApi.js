@@ -1,8 +1,8 @@
 const axios = require('axios');
 
-const API_KEY = '06c07639f6b34f989ff8454a61b99183';
-
-async function fetchArticles(topic) {
+const API_KEY =process.env.NEWS_API_KEY ;
+const { v4: uuidv4 } = require('uuid');
+async function fetchNewsApiArt(topic) {
   const res = await axios.get(
     'https://newsapi.org/v2/everything',
     {
@@ -15,13 +15,15 @@ async function fetchArticles(topic) {
   );
 
   return res.data.articles.map(a => ({
-    id: a.url,
+    id: uuidv4(),
+    sourceUrl: a.url,
     title: a.title,
     content: a.content || '',
     topic,
+    image_url: a.urlToImage || 'hi',
     source: 'newsapi',
     published_at: a.publishedAt
   }));
 }
 
-module.exports = { fetchArticles };
+module.exports = { fetchNewsApiArt };

@@ -1,40 +1,45 @@
 const cron = require('node-cron');
-const { fetchArticles } = require('../sources/newsApi');
 const { saveArticle } = require('../services/articleService');
 const { articleToLesson } = require('../services/articleToLesson');
 const { saveLesson } = require('../services/lessonService');
 const { tokenize } = require('../services/tokenize');
 const { prewarmVocabulary } = require('../services/vocabService');
-
-const TOPICS = ['technology', 'business'];
-
+const sources = require('../sources/sources.js');
 async function fetchAndSave() {
   console.log('🚀 Fetching articles...');
 
-  for (const topic of TOPICS) {
-    const articles = await fetchArticles(topic);
+  for (const s of sources) {
+    let articles = [];
+
+    try {
+      articles = await s.fetch(); // gọi fetch của source
+    } catch (err) {
+      console.error(`❌ Source failed: ${s.source}-${s.topic}`, err.message);
+      continue;
+    }
+
+    if (!Array.isArray(articles)) {
+      console.error(`❌ ${s.source}-${s.topic} did not return array`);
+      continue;
+    }
 
     for (const article of articles) {
-      // 1️⃣ Lưu article gốc
-      saveArticle(article);
-
-      // 2️⃣ Tạo lesson từ article
       try {
+        await saveArticle(article);
+
         const lesson = await articleToLesson(article);
         const words = tokenize(lesson.text);
 
-        // 3️⃣ Lưu lesson
-        saveLesson(lesson);
-         // 3️⃣ PREWARM VOCAB → CHẠY NỀN, KHÔNG AWAIT
-            prewarmVocabulary(words).catch(err => {
-            console.error('⚠️ vocab prewarm failed:', err.message);
-        });
-   
+        await saveLesson(lesson);
 
+        prewarmVocabulary(words).catch(err =>
+          console.error('⚠️ vocab prewarm failed:', err.message)
+        );
 
-        console.log('📘 Lesson created:', lesson.title);
+        console.log(`📘 [${s.source}-${s.topic}] Lesson created:`, lesson.title);
+
       } catch (err) {
-        console.error('❌ Failed to create lesson:', article.id);
+        console.error('❌ Failed to create lesson:', article.id, err.message);
       }
     }
   }
@@ -42,12 +47,12 @@ async function fetchAndSave() {
   console.log('✅ Done fetching & lesson creation');
 }
 
-/**
- * ✅ CHẠY NGAY KHI SERVER START
- */
-fetchAndSave();
+  /**
+   * ✅ CHẠY NGAY KHI SERVER START
+   */
+  fetchAndSave();
 
-/**
- * ⏰ SAU ĐÓ CHẠY ĐỊNH KỲ
- */
-cron.schedule('0 */6 * * *', fetchAndSave);
+  /**
+   * ⏰ SAU ĐÓ CHẠY ĐỊNH KỲ
+   */
+  cron.schedule('0 */6 * * *', fetchAndSave);
