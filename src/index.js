@@ -42,6 +42,19 @@ app.use((error, req, res, next) => {
   console.error('❌ Server error:', error.stack);
   res.status(500).json({ error: 'Internal server error' });
 });
+
+// ===== db. ====
+router.get('/debug/db', (req, res) => {
+  const tables = db.prepare(`
+    SELECT name FROM sqlite_master WHERE type='table';
+  `).all();
+
+  const lessons = db.prepare(`
+    SELECT * FROM lessons LIMIT 5;
+  `).all();
+
+  res.json({ tables, lessons });
+});
 // ===== 5. START SERVER (BẮT BUỘC) =====
 const PORT = process.env.PORT || 3000;
 
