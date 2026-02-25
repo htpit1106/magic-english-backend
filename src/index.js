@@ -44,6 +44,7 @@ app.use((error, req, res, next) => {
 });
 
 // ===== db. ====
+const db = require('../db');
 app.get('/debug/db', (req, res) => {
   const tables = db.prepare(`
     SELECT name FROM sqlite_master WHERE type='table';
