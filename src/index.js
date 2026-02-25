@@ -44,7 +44,7 @@ app.use((error, req, res, next) => {
 });
 
 // ===== db. ====
-// const db = require('../db');
+const db = require('../db');
 // app.get('/debug/db', (req, res) => {
 //   const tables = db.prepare(`
 //     SELECT name FROM sqlite_master WHERE type='table';
@@ -56,7 +56,7 @@ app.use((error, req, res, next) => {
 
 //   res.json({ tables, lessons });
 // });
-router.get('/debug/download-db', (req, res) => {
+app.get('/debug/download-db', (req, res) => {
   res.download('data.db');
 });
 // ===== 5. START SERVER (BẮT BUỘC) =====
