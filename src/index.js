@@ -44,7 +44,7 @@ app.use((error, req, res, next) => {
 });
 
 // ===== db. ====
-router.get('/debug/db', (req, res) => {
+app.get('/debug/db', (req, res) => {
   const tables = db.prepare(`
     SELECT name FROM sqlite_master WHERE type='table';
   `).all();
