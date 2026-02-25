@@ -44,17 +44,20 @@ app.use((error, req, res, next) => {
 });
 
 // ===== db. ====
-const db = require('../db');
-app.get('/debug/db', (req, res) => {
-  const tables = db.prepare(`
-    SELECT name FROM sqlite_master WHERE type='table';
-  `).all();
+// const db = require('../db');
+// app.get('/debug/db', (req, res) => {
+//   const tables = db.prepare(`
+//     SELECT name FROM sqlite_master WHERE type='table';
+//   `).all();
 
-  const lessons = db.prepare(`
-    SELECT * FROM lessons LIMIT 5;
-  `).all();
+//   const lessons = db.prepare(`
+//     SELECT * FROM lessons LIMIT 5;
+//   `).all();
 
-  res.json({ tables, lessons });
+//   res.json({ tables, lessons });
+// });
+router.get('/debug/download-db', (req, res) => {
+  res.download('data.db');
 });
 // ===== 5. START SERVER (BẮT BUỘC) =====
 const PORT = process.env.PORT || 3000;
