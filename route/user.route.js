@@ -11,7 +11,7 @@ router.post('/', (req, res) => {
    return res.status(400).json({ error: 'Invalid payload' });
  }
  db.prepare(`
-    INSERT OR REPLACE INTO users (userId, topics)
+    INSERT OR REPLACE INTO users (id, topics)
     VALUES (?, ?)
   `).run(userId, JSON.stringify(topics));
   res.status(201).json({ message: 'User created successfully' });
