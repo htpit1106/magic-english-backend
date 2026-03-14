@@ -35,7 +35,7 @@ router.get('/recommend', (req, res) => {
     const placeholders = topics.map(() => '?').join(',');
     
     const lessons = db.prepare(`
-    SELECT id, title, text, topic, level, reading_time, source_url, published_at
+    SELECT *
     FROM lessons
     WHERE topic IN (${placeholders})
     ORDER BY published_at DESC
