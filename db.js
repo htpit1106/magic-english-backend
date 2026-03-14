@@ -23,7 +23,7 @@ db.prepare(`
     level integer,
     current_streak integer,
     longest_streak integer,
-    last_study_date TEXT
+    last_study_date TEXT,
     created_at TEXT,
     topics TEXT,
   )
