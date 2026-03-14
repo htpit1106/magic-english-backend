@@ -25,7 +25,7 @@ db.prepare(`
     longest_streak integer,
     last_study_date TEXT,
     created_at TEXT,
-    topics TEXT,
+    topics TEXT
   )
 `).run();
 
