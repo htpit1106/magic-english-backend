@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
   }
 
   const lessons = db.prepare(`
-    SELECT id, title, text, topic, level, reading_time, source_url, published_at
+    SELECT *
     FROM lessons
     WHERE topic = ?
     ORDER BY published_at DESC
