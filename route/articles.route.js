@@ -15,7 +15,7 @@ router.get('/', (req, res) => {
     FROM lessons
     WHERE topic = ?
     ORDER BY published_at DESC
-    LIMIT 10
+    LIMIT 50
   `).all(topic);
 
   res.json(lessons);

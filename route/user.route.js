@@ -39,7 +39,7 @@ router.get('/recommend', (req, res) => {
     FROM lessons
     WHERE topic IN (${placeholders})
     ORDER BY published_at DESC
-    LIMIT 10
+    LIMIT 100
   `).all(...topics);
     
     res.json(lessons);
