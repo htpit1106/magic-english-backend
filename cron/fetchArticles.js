@@ -28,11 +28,11 @@ async function fetchAndSave() {
         await saveArticle(article);
 
         const lesson = await articleToLesson(article);
-        const words = tokenize(lesson.text);
+        const words = [...new Set(tokenize(lesson.text))];
 
         await saveLesson(lesson);
 
-        prewarmVocabulary(words).catch(err =>
+        await prewarmVocabulary(words).catch(err =>
           console.error('⚠️ vocab prewarm failed:', err.message)
         );
 

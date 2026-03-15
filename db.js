@@ -49,9 +49,8 @@ db.prepare(`
 db.prepare(`
   CREATE TABLE IF NOT EXISTS vocabulary (
     word TEXT PRIMARY KEY,
-    meaning TEXT,
+    meanings TEXT,
     phonetic TEXT,
-    example TEXT,
     audio TEXT,
     created_at TEXT
   )
