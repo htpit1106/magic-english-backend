@@ -47,12 +47,6 @@ async function fetchAndSave() {
   console.log('✅ Done fetching & lesson creation');
 }
 
-  /**
-   * ✅ CHẠY NGAY KHI SERVER START
-   */
-  fetchAndSave();
-
-  /**
-   * ⏰ SAU ĐÓ CHẠY ĐỊNH KỲ
-   */
-  cron.schedule('0 */6 * * *', fetchAndSave);
+module.exports = {
+  fetchAndSave
+};

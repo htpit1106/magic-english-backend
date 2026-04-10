@@ -5,7 +5,6 @@ const app = express();
 
 app.use(express.json());
 
-// ❌ bỏ cron
 // require('../cron/fetchArticles');
 const { fetchAndSave } = require('../cron/fetchArticles');
 
