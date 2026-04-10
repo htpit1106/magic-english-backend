@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 const API_KEY =process.env.NEWS_API_KEY ;
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID: uuidv4 } = require('crypto');
 async function fetchNewsApiArt(topic) {
   const res = await axios.get(
     'https://newsapi.org/v2/everything',

@@ -1,6 +1,6 @@
 const Parser = require('rss-parser');
 const parser = new Parser();
-const { v4: uuidv4 } = require('uuid');
+const { randomUUID: uuidv4 } = require('crypto');
 
 /**
  * BBC RSS fetcher generic
