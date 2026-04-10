@@ -13,3 +13,5 @@ logs
 
 # OS files
 .DS_Store
+
+service_account_key.json
