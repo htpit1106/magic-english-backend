@@ -7,6 +7,17 @@ app.use(express.json());
 
 // ❌ bỏ cron
 // require('../cron/fetchArticles');
+const { fetchAndSave } = require('../cron/fetchArticles');
+
+app.get('/api/cron', async (req, res) => {
+  try {
+    await fetchAndSave();
+    res.send('Cron job executed');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Cron failed');
+  }
+});
 
 // routes
 const articlesRoute = require('../route/articles.route');
