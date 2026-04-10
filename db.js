@@ -16,14 +16,6 @@ db.prepare(`
 db.prepare(`
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
-    email TEXT UNIQUE,
-    nickname TEXT,
-    avatar_url TEXT,
-    total_xp integer,
-    level integer,
-    current_streak integer,
-    longest_streak integer,
-    last_study_date TEXT,
     created_at TEXT,
     topics TEXT
   )

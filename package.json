@@ -81,6 +81,11 @@
 
    
 
+  "firebase-admin": "^13.8.0",
+ 
+
+   
+
   "html-to-text": "^9.0.5",
  
 

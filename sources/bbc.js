@@ -12,7 +12,7 @@ async function fetchBbc(feedUrl, topic) {
 
   return feed.items.map(item => ({
     id: uuidv4(),
-    sourceUrl: item.link,
+    source_url: item.link,
     title: item.title,
     content: item.contentSnippet || item.content || '',
     topic,

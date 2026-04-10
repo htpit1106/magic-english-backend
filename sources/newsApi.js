@@ -16,7 +16,7 @@ async function fetchNewsApiArt(topic) {
 
   return res.data.articles.map(a => ({
     id: uuidv4(),
-    sourceUrl: a.url,
+    source_url: a.url,
     title: a.title,
     content: a.content || '',
     topic,

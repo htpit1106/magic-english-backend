@@ -3,7 +3,7 @@ const { cleanText } = require('./cleanText');
 const { shortenText } = require('./shortenText');
 
 async function articleToLesson(article) {
-  const html = await fetchFullArticle(article.sourceUrl);
+  const html = await fetchFullArticle(article.source_url);
   const clean = cleanText(html);
   const text = shortenText(clean);
 
@@ -14,7 +14,7 @@ async function articleToLesson(article) {
     topic: article.topic,
     level: 'B1',
     reading_time: Math.ceil(text.split(' ').length / 200),
-    source_url: article.sourceUrl,
+    source_url: article.source_url,
     published_at: article.published_at,
     image_url: article.image_url
   };

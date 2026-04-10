@@ -1,25 +1,20 @@
-const db = require('../db');
+const db = require('../src/firebase.js');
 
-function saveArticle(article) {
-  const exists = db
-    .prepare('SELECT id FROM articles WHERE sourceUrl = ?')
-    .get(article.sourceUrl);
+async function saveArticle(article) {
+  const ref = db.collection('articles;').doc(article.id);
+  const doc = await ref.get();
+  if(doc.exists) return;
 
-  if (exists) return;
-
-  db.prepare(`
-    INSERT INTO articles (id, sourceUrl, title, content, topic, source, published_at, image_url)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    article.id,
-    article.sourceUrl,
-    article.title,
-    article.content,
-    article.topic,
-    article.source,
-    article.published_at,
-    article.image_url
-  );
+  await ref.set({
+    source_url: article.source_url,
+    title: article.title,
+    content: article.content,
+    topic: article.topic,
+    source: article.source,
+    published_at: article.published_at,
+    image_url: article.image_url
+  
+  })
 }
 
 module.exports = { saveArticle };

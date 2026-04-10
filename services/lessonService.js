@@ -1,28 +1,25 @@
 
-const db = require('../db');
+const db = require('../src/firebase');
 
-function saveLesson(lesson) {
-  // check if lesson with the same id already exists
-  const exists = db.prepare('SELECT 1 FROM lessons WHERE source_url = ?').get(lesson.source_url);
-  if (exists) {
-    console.log('ℹ Lesson already exists, skipping:', lesson.id);
+async function saveLesson(lesson) {
+  const ref = db.collection('lessons').doc(lesson.id);
+
+  const doc = await ref.get();
+  if (doc.exists) {
+    console.log('Lesson exists, skip:', lesson.id);
     return;
   }
-  db.prepare(`
-    INSERT INTO lessons
-    (id, title, text, topic, level, reading_time, source_url, published_at, image_url)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    lesson.id,
-    lesson.title,
-    lesson.text,
-    lesson.topic,
-    lesson.level,
-    lesson.reading_time,
-    lesson.source_url,
-    lesson.published_at,
-    lesson.image_url
-  );
+
+  await ref.set({
+    title: lesson.title,
+    text: lesson.text,
+    topic: lesson.topic,
+    level: lesson.level,
+    reading_time: lesson.reading_time,
+    source_url: lesson.source_url,
+    published_at: lesson.published_at,
+    image_url: lesson.image_url,
+  });
   
 }
 

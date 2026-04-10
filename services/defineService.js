@@ -1,4 +1,4 @@
-const db = require('../db');
+const db = require('../firebase');
 
 async function defineWord(word) {
   word = word.toLowerCase().trim();
@@ -7,15 +7,13 @@ async function defineWord(word) {
     throw new Error('Invalid word');
   }
 
-  const vocab = db
-    .prepare('SELECT * FROM vocabulary WHERE word = ?')
-    .get(word);
+  const doc = await db.collection('vocabulary').doc(word).get();
 
-  if (!vocab) {
+  if (!doc.exists) {
     throw new Error('Word not found');
   }
 
-  return vocab;
+  return doc.data();
 }
 
 module.exports = { defineWord };
