@@ -37,16 +37,16 @@ router.get('/recommend', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const { topics } = userDoc.data();
+    const { favorite_topic } = userDoc.data();
 
-    if (!topics || topics.length === 0) {
+    if (!favorite_topic || favorite_topic.length === 0) {
       return res.json([]);
     }
 
     // ⚠️ Firestore giới hạn max 10 phần tử trong "in"
     const snapshot = await db
       .collection('lessons')
-      .where('topic', 'in', topics.slice(0, 10))
+      .where('topic', 'in', favorite_topic.slice(0, 10))
       .orderBy('published_at', 'desc')
       .limit(100)
       .get();
