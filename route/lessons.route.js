@@ -1,41 +1,52 @@
 // selection lesson by topic
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const db = require('../src/firebase');
 
-// GET /api/lessons?topic=your_topic
-router.get('/', (req, res) => {
-  const { topic, limit = 10 } = req.query;
+// GET /api/lessons?topic=...
+router.get('/', async (req, res) => {
+  try {
+    const { topic, limit = 10 } = req.query;
 
-  if (!topic) {
-    return res.status(400).json({ error: 'Missing topic' });
+    if (!topic) {
+      return res.status(400).json({ error: 'Missing topic' });
+    }
+
+    const snapshot = await db
+      .collection('lessons')
+      .where('topic', '==', topic)
+      .orderBy('published_at', 'desc')
+      .limit(Number(limit))
+      .get();
+
+    const lessons = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    res.json(lessons);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
   }
-
-  const lessons = db.prepare(`
-    SELECT 
-      *
-    FROM lessons
-    WHERE topic = ?
-    ORDER BY published_at DESC
-    LIMIT ?
-  `).all(topic, Number(limit));
-
-  res.json(lessons);
 });
 
-// GET /api/lessons/:id
-router.get('/:id', (req, res) => {
-  const id = decodeURIComponent(req.params.id);
+router.get('/:id', async (req, res) => {
+  try {
+    const id = decodeURIComponent(req.params.id);
 
-  const lesson = db.prepare(`
-    SELECT * FROM lessons WHERE id = ?
-  `).get(id);
+    const doc = await db.collection('lessons').doc(id).get();
 
-  if (!lesson) {
-    return res.status(404).json({ error: 'Lesson not found' });
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Lesson not found' });
+    }
+
+    res.json({ id: doc.id, ...doc.data() });
+
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
   }
-
-  res.json(lesson);
 });
 
 module.exports = router;
