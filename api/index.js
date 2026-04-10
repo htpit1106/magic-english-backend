@@ -10,7 +10,7 @@ const { fetchAndSave } = require('../cron/fetchArticles');
 
 app.get('/api/cron', async (req, res) => {
   try {
-    fetchAndSave();
+    await fetchAndSave();
     res.send('Cron job executed');
   } catch (err) {
     console.error(err);
