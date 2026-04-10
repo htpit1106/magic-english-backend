@@ -1,4 +1,3 @@
-const cron = require('node-cron');
 const { saveArticle } = require('../services/articleService');
 const { articleToLesson } = require('../services/articleToLesson');
 const { saveLesson } = require('../services/lessonService');
