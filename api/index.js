@@ -9,17 +9,17 @@ app.use(express.json());
 // require('../cron/fetchArticles');
 
 // routes
-const articlesRoute = require('../src/route/articles.route');
+const articlesRoute = require('../route/articles.route');
 app.use('/api/articles', articlesRoute);
 
-const lessonsRoute = require('../src/route/lessons.route');
+const lessonsRoute = require('../route/lessons.route');
 app.use('/api/lessons', lessonsRoute);
 
-const userRoute = require('../src/route/user.route');
+const userRoute = require('../route/user.route');
 app.use('/api/users', userRoute);
 
 // define word
-const { defineWord } = require('../src/services/defineService');
+const { defineWord } = require('../services/defineService');
 
 app.get('/api/define', async (req, res) => {
   try {
