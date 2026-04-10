@@ -1,4 +1,4 @@
-const db = require('../firebase');
+const db = require('../src/firebase');
 
 async function defineWord(word) {
   word = word.toLowerCase().trim();
