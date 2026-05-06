@@ -46,6 +46,11 @@
 
    
 
+  "@google/generative-ai": "^0.24.1",
+ 
+
+   
+
   "@postlight/mercury-parser": "^2.2.1",
  
 

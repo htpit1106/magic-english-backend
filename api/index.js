@@ -28,6 +28,9 @@ app.use('/api/lessons', lessonsRoute);
 const userRoute = require('../route/user.route');
 app.use('/api/users', userRoute);
 
+const quizRoute = require('../route/quiz.route');
+app.use('/api', quizRoute);
+
 // define word
 const { defineWord } = require('../services/defineService');
 
@@ -43,8 +46,7 @@ app.get('/api/define', async (req, res) => {
   }
 });
 
-// ❌ bỏ download db
-// app.get('/debug/download-db', ...)
+
 
 // error handler
 app.use((err, req, res, next) => {
