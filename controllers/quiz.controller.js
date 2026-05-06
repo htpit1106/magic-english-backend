@@ -1,6 +1,26 @@
 const db = require('../src/firebase');
 const { getOrCreateQuizzes } = require('../services/quiz.service');
 
+function parsePayload(body) {
+  if (!body) {
+    return {};
+  }
+
+  if (typeof body === 'string') {
+    try {
+      return JSON.parse(body);
+    } catch (err) {
+      return {};
+    }
+  }
+
+  if (typeof body === 'object') {
+    return body;
+  }
+
+  return {};
+}
+
 function normalizeWordId(value) {
   if (typeof value !== 'string') {
     return '';
@@ -30,7 +50,7 @@ function normalizeVocabItem(item) {
 }
 
 function extractVocabList(body) {
-  const payload = body && typeof body === 'object' ? body : {};
+  const payload = parsePayload(body);
 
   if (Array.isArray(payload)) {
     return payload;
@@ -52,7 +72,9 @@ function extractVocabList(body) {
 }
 
 function getUserId(req) {
-  return req.user?.id || req.body?.userId || req.query.userId || '';
+  const payload = parsePayload(req.body);
+
+  return req.user?.id || payload.userId || req.query.userId || req.headers['x-user-id'] || '';
 }
 
 async function getQuiz(req, res) {
@@ -81,7 +103,8 @@ async function getQuiz(req, res) {
 async function getDueQuiz(req, res) {
   try {
     const userId = getUserId(req);
-    const maxPerDay = Number(req.query.maxPerDay || req.body?.maxPerDay || 20);
+    const payload = parsePayload(req.body);
+    const maxPerDay = Number(req.query.maxPerDay || payload.maxPerDay || 20);
     const now = new Date().toISOString();
 
     if (!userId) {

@@ -4,6 +4,7 @@ const express = require('express');
 const app = express();
 
 app.use(express.json());
+app.use(express.text({ type: 'text/plain' }));
 
 // require('../cron/fetchArticles');
 const { fetchAndSave } = require('../cron/fetchArticles');
