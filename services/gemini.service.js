@@ -58,7 +58,7 @@ async function generateQuizFromWord(wordData) {
     throw new Error('Missing GEMINI_API_KEY');
   }
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
   const meanings = normalizeMeaningText(wordData.meanings);
 
   const prompt = `
@@ -113,7 +113,9 @@ Format:
     }));
   } catch (err) {
     console.error('Parse error:', text);
-    throw new Error('Invalid AI response');
+    console.error('Gemini generation failed:', err.message);
+
+    throw new Error(`Failed to generate quiz: ${err.message}`);
   }
 }
 
