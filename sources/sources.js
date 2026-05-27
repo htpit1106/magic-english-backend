@@ -41,26 +41,26 @@ module.exports = [
     {
         source: 'vnexpress',
         topic: 'technology',
-        fetch: () => fetchVnexpress('https://vnexpress.net/rss/technology.rss', 'technology')
+        fetch: () => fetchVnexpress('https://e.vnexpress.net/rss/news.rss', 'technology')
     },
     {
         source: 'vnexpress',
         topic: 'business',
-        fetch: () => fetchVnexpress('https://vnexpress.net/rss/kinh-doanh.rss', 'business')
+        fetch: () => fetchVnexpress('https://e.vnexpress.net/rss/business.rss', 'business')
     },
     {
         source: 'vnexpress',
         topic: 'news',
-        fetch: () => fetchVnexpress('https://vnexpress.net/rss/thoi-su.rss', 'news')
+        fetch: () => fetchVnexpress('https://e.vnexpress.net/rss/news.rss', 'news')
     },
     {
         source: 'vnexpress',
         topic: 'science',
-        fetch: () => fetchVnexpress('https://vnexpress.net/rss/khoa-hoc.rss', 'science')
+        fetch: () => fetchVnexpress('https://e.vnexpress.net/rss/news.rss', 'science')
     },
     {
         source: 'vnexpress',
         topic: 'health',
-        fetch: () => fetchVnexpress('https://vnexpress.net/rss/suc-khoe.rss', 'health')
+        fetch: () => fetchVnexpress('https://e.vnexpress.net/rss/news.rss', 'health')
     }
 ]
