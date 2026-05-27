@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
     }
 
     const snapshot = await db
-      .collection('articles')
+      .collection('lessons')
       .where('topic', '==', topic)
       .orderBy('published_at', 'desc')
       .limit(Number(limit))
