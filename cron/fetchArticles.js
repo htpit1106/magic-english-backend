@@ -22,16 +22,9 @@ async function fetchAndSave() {
       continue;
     }
 
-    // Lấy tối đa 2 bài viết mới nhất để tránh quá tải và timeout
-    const articlesToProcess = articles.slice(0, 2);
-
-    for (const article of articlesToProcess) {
+    for (const article of articles) {
       try {
-        const isNew = await saveArticle(article);
-        if (!isNew) {
-          console.log(`⏭️ [${s.source}-${s.topic}] Article already exists, skip:`, article.title);
-          continue;
-        }
+        await saveArticle(article);
 
         const lesson = await articleToLesson(article);
         const words = [...new Set(tokenize(lesson.text))];

@@ -1,6 +1,6 @@
 const Parser = require('rss-parser');
 const parser = new Parser();
-const crypto = require('crypto');
+const { randomUUID: uuidv4 } = require('crypto');
 
 /**
  * BBC RSS fetcher generic
@@ -10,19 +10,16 @@ const crypto = require('crypto');
 async function fetchBbc(feedUrl, topic) {
   const feed = await parser.parseURL(feedUrl);
 
-  return feed.items.map(item => {
-    const id = crypto.createHash('md5').update(item.link || '').digest('hex');
-    return {
-      id,
-      source_url: item.link,
-      title: item.title,
-      content: item.contentSnippet || item.content || '',
-      topic,
-      image_url: '', // BBC RSS thường không có ảnh
-      source: 'bbc',
-      published_at: item.pubDate
-    };
-  });
+  return feed.items.map(item => ({
+    id: uuidv4(),
+    source_url: item.link,
+    title: item.title,
+    content: item.contentSnippet || item.content || '',
+    topic,
+    image_url: '', // BBC RSS thường không có ảnh
+    source: 'bbc',
+    published_at: item.pubDate
+  }));
 }
 
 module.exports = { fetchBbc };

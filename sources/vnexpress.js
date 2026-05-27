@@ -1,6 +1,6 @@
 const Parser = require('rss-parser');
 const parser = new Parser();
-const crypto = require('crypto');
+const { randomUUID: uuidv4 } = require('crypto');
 
 /**
  * VNExpress RSS fetcher
@@ -33,10 +33,8 @@ async function fetchVnexpress(feedUrl, topic) {
         cleanContent = cleanContent.replace(/<[^>]*>/g, '').trim();
       }
 
-      const id = crypto.createHash('md5').update(item.link || '').digest('hex');
-
       return {
-        id,
+        id: uuidv4(),
         source_url: item.link,
         title: item.title,
         content: cleanContent,

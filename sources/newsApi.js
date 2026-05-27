@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 const API_KEY =process.env.NEWS_API_KEY ;
-const crypto = require('crypto');
+const { randomUUID: uuidv4 } = require('crypto');
 async function fetchNewsApiArt(topic) {
   const res = await axios.get(
     'https://newsapi.org/v2/everything',
@@ -14,19 +14,16 @@ async function fetchNewsApiArt(topic) {
     }
   );
 
-  return res.data.articles.map(a => {
-    const id = crypto.createHash('md5').update(a.url || '').digest('hex');
-    return {
-      id,
-      source_url: a.url,
-      title: a.title,
-      content: a.content || '',
-      topic,
-      image_url: a.urlToImage || 'hi',
-      source: 'newsapi',
-      published_at: a.publishedAt
-    };
-  });
+  return res.data.articles.map(a => ({
+    id: uuidv4(),
+    source_url: a.url,
+    title: a.title,
+    content: a.content || '',
+    topic,
+    image_url: a.urlToImage || 'hi',
+    source: 'newsapi',
+    published_at: a.publishedAt
+  }));
 }
 
 module.exports = { fetchNewsApiArt };
