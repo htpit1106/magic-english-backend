@@ -3,7 +3,7 @@ const db = require('../src/firebase.js');
 async function saveArticle(article) {
   const ref = db.collection('articles').doc(article.id);
   const doc = await ref.get();
-  if(doc.exists) return;
+  if(doc.exists) return false;
 
   await ref.set({
     source_url: article.source_url,
@@ -13,8 +13,8 @@ async function saveArticle(article) {
     source: article.source,
     published_at: article.published_at,
     image_url: article.image_url
-  
-  })
+  });
+  return true;
 }
 
 module.exports = { saveArticle };
