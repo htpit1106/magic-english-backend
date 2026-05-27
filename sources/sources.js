@@ -1,6 +1,5 @@
 const { fetchNewsApiArt } = require('./newsApi.js');
 const { fetchBbc } = require('./bbc.js');
-const { fetchVnexpress } = require('./vnexpress.js');
 
 module.exports = [
     {
@@ -37,30 +36,5 @@ module.exports = [
         source: 'bbc',
         topic: 'health',
         fetch: () => fetchBbc('https://feeds.bbci.co.uk/news/health/rss.xml', 'health')
-    },
-    {
-        source: 'vnexpress',
-        topic: 'technology',
-        fetch: () => fetchVnexpress('https://vnexpress.net/rss/technology.rss', 'technology')
-    },
-    {
-        source: 'vnexpress',
-        topic: 'business',
-        fetch: () => fetchVnexpress('https://vnexpress.net/rss/kinh-doanh.rss', 'business')
-    },
-    {
-        source: 'vnexpress',
-        topic: 'news',
-        fetch: () => fetchVnexpress('https://vnexpress.net/rss/thoi-su.rss', 'news')
-    },
-    {
-        source: 'vnexpress',
-        topic: 'science',
-        fetch: () => fetchVnexpress('https://vnexpress.net/rss/khoa-hoc.rss', 'science')
-    },
-    {
-        source: 'vnexpress',
-        topic: 'health',
-        fetch: () => fetchVnexpress('https://vnexpress.net/rss/suc-khoe.rss', 'health')
     }
 ]
