@@ -1,7 +1,7 @@
 const db = require('../src/firebase.js');
 
 async function saveArticle(article) {
-  const ref = db.collection('articles;').doc(article.id);
+  const ref = db.collection('articles').doc(article.id);
   const doc = await ref.get();
   if(doc.exists) return;
 

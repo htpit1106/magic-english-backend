@@ -37,9 +37,10 @@ router.get('/recommend', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const { favorite_topic } = userDoc.data();
+    const userData = userDoc.data() || {};
+    const favorite_topic = userData.favorite_topic || userData.topics;
 
-    if (!favorite_topic || favorite_topic.length === 0) {
+    if (!favorite_topic || !Array.isArray(favorite_topic) || favorite_topic.length === 0) {
       return res.json([]);
     }
 
