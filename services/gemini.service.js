@@ -119,4 +119,139 @@ Format:
   }
 }
 
-module.exports = { generateQuizFromWord };
+async function generateWritingLesson({ topic, level }) {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('Missing GEMINI_API_KEY');
+  }
+
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+  const prompt = `
+You are an English Writing Lesson Generator.
+
+Generate a writing lesson in JSON format.
+
+Input:
+- Topic: ${topic}
+- CEFR Level: ${level}
+
+Requirements:
+1. Create a realistic scenario.
+2. Create a writing task.
+3. Generate 3-5 writing requirements.
+4. Generate 5-10 useful vocabulary words.
+5. Suggest a minimum and maximum word count.
+6. The lesson must match the CEFR level.
+7. The topic must be appropriate (no sexual, political, hateful, violent or illegal content). If the topic is inappropriate, set "title" to "REJECTED" and leave other fields empty.
+8. Return JSON only.
+
+Output Format:
+{
+  "title": "",
+  "level": "",
+  "scenario": "",
+  "task": "",
+  "requirements": [],
+  "sampleVocabulary": [],
+  "wordLimit": { "min": 0, "max": 0 }
+}
+`;
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  const jsonText = extractJson(text);
+
+  try {
+    const parsed = JSON.parse(jsonText);
+
+    return {
+      title: parsed.title || topic,
+      level: parsed.level || level,
+      scenario: parsed.scenario || '',
+      task: parsed.task || '',
+      requirements: Array.isArray(parsed.requirements) ? parsed.requirements : [],
+      sampleVocabulary: Array.isArray(parsed.sampleVocabulary) ? parsed.sampleVocabulary : [],
+      wordLimit: {
+        min: Number(parsed.wordLimit?.min) || 0,
+        max: Number(parsed.wordLimit?.max) || 0
+      }
+    };
+  } catch (err) {
+    console.error('Parse error:', text);
+    console.error('Gemini generation failed:', err.message);
+
+    throw new Error(`Failed to generate writing lesson: ${err.message}`);
+  }
+}
+
+async function evaluateWriting({ topic, level, content }) {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('Missing GEMINI_API_KEY');
+  }
+
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+  const prompt = `
+You are an English Writing Evaluator.
+
+Evaluate the student's writing.
+
+Topic: ${topic || 'N/A'}
+Target CEFR Level: ${level || 'N/A'}
+
+Student's writing:
+"""
+${content}
+"""
+
+Provide:
+- Grammar Score (0-100)
+- Vocabulary Score (0-100)
+- Task Completion Score (0-100)
+- Overall Score (0-100)
+- Estimated CEFR Level
+- Strengths
+- Mistakes
+- Improved Version
+
+Return JSON only.
+
+Output Format:
+{
+  "grammarScore": 0,
+  "vocabularyScore": 0,
+  "taskCompletionScore": 0,
+  "overallScore": 0,
+  "estimatedCEFRLevel": "",
+  "strengths": [],
+  "mistakes": [],
+  "improvedVersion": ""
+}
+`;
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  const jsonText = extractJson(text);
+
+  try {
+    const parsed = JSON.parse(jsonText);
+
+    return {
+      grammarScore: Number(parsed.grammarScore) || 0,
+      vocabularyScore: Number(parsed.vocabularyScore) || 0,
+      taskCompletionScore: Number(parsed.taskCompletionScore) || 0,
+      overallScore: Number(parsed.overallScore) || 0,
+      estimatedCEFRLevel: parsed.estimatedCEFRLevel || '',
+      strengths: Array.isArray(parsed.strengths) ? parsed.strengths : [],
+      mistakes: Array.isArray(parsed.mistakes) ? parsed.mistakes : [],
+      improvedVersion: parsed.improvedVersion || ''
+    };
+  } catch (err) {
+    console.error('Parse error:', text);
+    console.error('Gemini evaluation failed:', err.message);
+
+    throw new Error(`Failed to evaluate writing: ${err.message}`);
+  }
+}
+
+module.exports = { generateQuizFromWord, generateWritingLesson, evaluateWriting };
