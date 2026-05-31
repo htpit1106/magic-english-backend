@@ -6,6 +6,23 @@ const app = express();
 app.use(express.json());
 app.use(express.text({ type: 'text/plain' }));
 
+// Health check - KHÔNG đụng Firebase/AI. Nếu route này sống mà route khác chết
+// thì lỗi nằm ở Firebase env/key; nếu route này cũng chết thì function crash lúc khởi động.
+app.get('/api/health', (req, res) => {
+  res.json({
+    ok: true,
+    env: {
+      GEMINI_API_KEY: !!process.env.GEMINI_API_KEY,
+      FIREBASE_PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
+      FIREBASE_CLIENT_EMAIL: !!process.env.FIREBASE_CLIENT_EMAIL,
+      FIREBASE_PRIVATE_KEY: !!process.env.FIREBASE_PRIVATE_KEY,
+      privateKeyStartsWithBegin: (process.env.FIREBASE_PRIVATE_KEY || '').includes('BEGIN'),
+      privateKeyHasLiteralBackslashN: (process.env.FIREBASE_PRIVATE_KEY || '').includes('\\n'),
+      privateKeyHasRealNewline: (process.env.FIREBASE_PRIVATE_KEY || '').includes('\n')
+    }
+  });
+});
+
 // require('../cron/fetchArticles');
 const { fetchAndSave } = require('../cron/fetchArticles');
 
