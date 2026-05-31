@@ -28,7 +28,8 @@ router.post('/generate-lesson', async (req, res) => {
     const id = `lesson_${crypto.randomUUID()}`;
     const result = { id, topic, ...lesson };
 
-    // Lưu bài học vào Firebase. Lỗi lưu không được làm hỏng response.
+    // Lưu bài học vào kho chung writing_lessons (dùng cho API gợi ý bài có sẵn).
+    // Lỗi lưu không được làm hỏng response.
     try {
       await db.collection('writing_lessons').doc(id).set({
         ...result,
@@ -54,7 +55,7 @@ router.post('/evaluate', async (req, res) => {
       return res.status(400).json({ error: 'Missing content' });
     }
 
-    // Lấy lại lesson từ Firebase để có topic/level làm ngữ cảnh chấm điểm
+    // Lấy lại lesson từ kho chung để có topic/level làm ngữ cảnh chấm điểm
     let lesson = null;
     if (lessonId) {
       try {
@@ -83,11 +84,19 @@ router.post('/evaluate', async (req, res) => {
       created_at: new Date().toISOString()
     };
 
-    // Lưu lịch sử bài làm. Lỗi lưu không được làm hỏng response.
-    try {
-      await db.collection('writing_submissions').doc(submissionId).set(submission);
-    } catch (saveErr) {
-      console.error('Save submission failed:', saveErr.message);
+    // Lưu lịch sử bài làm vào SUBCOLLECTION của user: users/{userId}/writing_submissions
+    // Lỗi lưu không được làm hỏng response.
+    if (userId) {
+      try {
+        await db
+          .collection('users')
+          .doc(userId)
+          .collection('writing_submissions')
+          .doc(submissionId)
+          .set(submission);
+      } catch (saveErr) {
+        console.error('Save submission failed:', saveErr.message);
+      }
     }
 
     res.json(submission);
@@ -98,7 +107,8 @@ router.post('/evaluate', async (req, res) => {
 });
 
 // GET /api/writing/history?userId=...&limit=20
-// Lấy lại các bài người học đã viết (lịch sử làm bài)
+// Lấy lại các bài người học đã viết (lịch sử làm bài) từ subcollection của user.
+// Mỗi item đã chứa đầy đủ thông tin (content + điểm + nhận xét) để hiển thị trang detail.
 router.get('/history', async (req, res) => {
   try {
     const { userId, limit = 20 } = req.query;
@@ -108,8 +118,9 @@ router.get('/history', async (req, res) => {
     }
 
     const snapshot = await db
+      .collection('users')
+      .doc(userId)
       .collection('writing_submissions')
-      .where('userId', '==', userId)
       .orderBy('created_at', 'desc')
       .limit(Number(limit))
       .get();
@@ -135,23 +146,6 @@ router.get('/lessons', async (req, res) => {
 
     const snapshot = await query.get();
     res.json(snapshot.docs.map(doc => doc.data()));
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message || 'Server error' });
-  }
-});
-
-// GET /api/writing/lessons/:id - chi tiết 1 bài học
-router.get('/lessons/:id', async (req, res) => {
-  try {
-    const id = decodeURIComponent(req.params.id);
-    const doc = await db.collection('writing_lessons').doc(id).get();
-
-    if (!doc.exists) {
-      return res.status(404).json({ error: 'Lesson not found' });
-    }
-
-    res.json(doc.data());
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message || 'Server error' });
