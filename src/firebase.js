@@ -1,38 +1,40 @@
 const admin = require('firebase-admin');
 
-const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } = process.env;
-
-// Báo lỗi rõ ràng khi thiếu env, thay vì để initializeApp crash mù toàn bộ function
-const missing = [
-  ['FIREBASE_PROJECT_ID', FIREBASE_PROJECT_ID],
-  ['FIREBASE_CLIENT_EMAIL', FIREBASE_CLIENT_EMAIL],
-  ['FIREBASE_PRIVATE_KEY', FIREBASE_PRIVATE_KEY]
-].filter(([, v]) => !v).map(([k]) => k);
-
-if (missing.length) {
-  throw new Error(`Missing Firebase env vars: ${missing.join(', ')}`);
-}
-
 // Chuẩn hoá private key: chịu được cả 2 kiểu Vercel lưu
 // - chuỗi 1 dòng có "\n" literal  -> đổi thành xuống dòng thật
 // - đã có xuống dòng thật          -> giữ nguyên
 // - bị bọc thừa dấu nháy đầu/cuối  -> bỏ
 function normalizePrivateKey(key) {
-  let k = key.trim();
+  let k = String(key).trim();
   if ((k.startsWith('"') && k.endsWith('"')) || (k.startsWith("'") && k.endsWith("'"))) {
     k = k.slice(1, -1);
   }
   return k.replace(/\\n/g, '\n');
 }
 
-const privateKey = normalizePrivateKey(FIREBASE_PRIVATE_KEY);
+function initFirebase() {
+  if (admin.apps.length) {
+    return admin.firestore();
+  }
 
-if (!privateKey.includes('BEGIN') || !privateKey.includes('PRIVATE KEY')) {
-  throw new Error('FIREBASE_PRIVATE_KEY is malformed (missing PEM header). Check the Vercel env value.');
-}
+  const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } = process.env;
 
-// Chỉ init một lần (Vercel serverless có thể load module nhiều lần -> tránh duplicate-app)
-if (!admin.apps.length) {
+  const missing = [
+    ['FIREBASE_PROJECT_ID', FIREBASE_PROJECT_ID],
+    ['FIREBASE_CLIENT_EMAIL', FIREBASE_CLIENT_EMAIL],
+    ['FIREBASE_PRIVATE_KEY', FIREBASE_PRIVATE_KEY]
+  ].filter(([, v]) => !v).map(([k]) => k);
+
+  if (missing.length) {
+    throw new Error(`Missing Firebase env vars: ${missing.join(', ')}`);
+  }
+
+  const privateKey = normalizePrivateKey(FIREBASE_PRIVATE_KEY);
+
+  if (!privateKey.includes('BEGIN') || !privateKey.includes('PRIVATE KEY')) {
+    throw new Error('FIREBASE_PRIVATE_KEY is malformed (missing PEM header). Check the Vercel env value.');
+  }
+
   admin.initializeApp({
     credential: admin.credential.cert({
       projectId: FIREBASE_PROJECT_ID,
@@ -40,8 +42,29 @@ if (!admin.apps.length) {
       privateKey
     })
   });
+
+  return admin.firestore();
 }
 
-const db = admin.firestore();
+// Lazy init: KHÔNG chạy initializeApp lúc import module (giống gemini.service không
+// đụng Firebase khi load). Firestore chỉ được khởi tạo ở lần truy cập đầu tiên,
+// nên việc import route/service sẽ không bao giờ làm crash cả function
+// (FUNCTION_INVOCATION_FAILED) nếu env Firebase thiếu/sai.
+let dbInstance = null;
 
-module.exports = db;
+function getDb() {
+  if (!dbInstance) {
+    dbInstance = initFirebase();
+  }
+  return dbInstance;
+}
+
+// Proxy giữ nguyên API cũ: các file vẫn dùng `db.collection(...)` như trước,
+// nhưng init chỉ xảy ra khi method được gọi thật sự.
+module.exports = new Proxy({}, {
+  get(_target, prop) {
+    const db = getDb();
+    const value = db[prop];
+    return typeof value === 'function' ? value.bind(db) : value;
+  }
+});
