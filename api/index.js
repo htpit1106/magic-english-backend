@@ -32,6 +32,9 @@ app.use('/api/users', userRoute);
 const quizRoute = require('../route/quiz.route');
 app.use('/api', quizRoute);
 
+const writingRoute = require('../route/writing.route');
+app.use('/api/writing', writingRoute);
+
 // define word
 const { defineWord } = require('../services/defineService');
 
