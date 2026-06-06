@@ -49,7 +49,9 @@ router.post('/generate-lesson', async (req, res) => {
 // POST /api/writing/evaluate  { lessonId, content, userId }
 router.post('/evaluate', async (req, res) => {
   try {
-    const { lessonId, content, userId } = req.body || {};
+    const { lessonId, content } = req.body || {};
+    // Lấy userId linh hoạt từ body, query hoặc header để tránh thiếu sót từ phía client
+    const userId = req.body?.userId || req.query?.userId || req.headers['x-user-id'] || null;
 
     if (!content) {
       return res.status(400).json({ error: 'Missing content' });
@@ -85,7 +87,6 @@ router.post('/evaluate', async (req, res) => {
     };
 
     // Lưu lịch sử bài làm vào SUBCOLLECTION của user: users/{userId}/writing_submissions
-    // Lỗi lưu không được làm hỏng response.
     if (userId) {
       try {
         await db
@@ -94,9 +95,12 @@ router.post('/evaluate', async (req, res) => {
           .collection('writing_submissions')
           .doc(submissionId)
           .set(submission);
+        console.log(`[SUCCESS] Saved writing submission ${submissionId} to user ${userId}`);
       } catch (saveErr) {
-        console.error('Save submission failed:', saveErr.message);
+        console.error(`[ERROR] Save submission failed for user ${userId}:`, saveErr.message);
       }
+    } else {
+      console.warn('[WARNING] evaluate: userId is missing or empty. Skipping Firebase save for writing submission.');
     }
 
     res.json(submission);
