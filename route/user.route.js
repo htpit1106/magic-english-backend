@@ -1,7 +1,46 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../src/firebase');
-//post new user with topics
+
+// GET /api/users — danh sách tất cả users (admin)
+router.get('/', async (req, res) => {
+  try {
+    const { limit = 100 } = req.query;
+    const snapshot = await db.collection('users').limit(Number(limit)).get();
+    const users = snapshot.docs.map(doc => ({ userId: doc.id, ...doc.data() }));
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// GET /api/users/:userId — chi tiết 1 user
+router.get('/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const doc = await db.collection('users').doc(userId).get();
+    if (!doc.exists) return res.status(404).json({ error: 'User not found' });
+    res.json({ userId: doc.id, ...doc.data() });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// DELETE /api/users/:userId — xóa user (admin)
+router.delete('/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const doc = await db.collection('users').doc(userId).get();
+    if (!doc.exists) return res.status(404).json({ error: 'User not found' });
+    await db.collection('users').doc(userId).delete();
+    res.json({ ok: true, userId });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /api/users — tạo/cập nhật user với topics
 router.post('/', async (req, res) => {
   try {
     const { userId, topics } = req.body;

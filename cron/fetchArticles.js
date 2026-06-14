@@ -3,9 +3,12 @@ const { articleToLesson } = require('../services/articleToLesson');
 const { saveLesson } = require('../services/lessonService');
 const { tokenize } = require('../services/tokenize');
 const { prewarmVocabulary } = require('../services/vocabService');
-const sources = require('../sources/sources.js');
+const { getSources } = require('../sources/sources.js');
+
 async function fetchAndSave() {
   console.log('🚀 Fetching articles...');
+
+  const sources = await getSources();
 
   for (const s of sources) {
     let articles = [];

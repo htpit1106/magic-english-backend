@@ -13,7 +13,7 @@ app.get('/api/health', (req, res) => {
     ok: true,
     env: {
       GEMINI_API_KEY: !!process.env.GEMINI_API_KEY,
-      FIREBASE_PROJECT_ID: !!process.env.FIREBASE_PROJECT_ID,
+      FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID || null,
       FIREBASE_CLIENT_EMAIL: !!process.env.FIREBASE_CLIENT_EMAIL,
       FIREBASE_PRIVATE_KEY: !!process.env.FIREBASE_PRIVATE_KEY,
       privateKeyStartsWithBegin: (process.env.FIREBASE_PRIVATE_KEY || '').includes('BEGIN'),
@@ -51,6 +51,9 @@ app.use('/api', quizRoute);
 
 const writingRoute = require('../route/writing.route');
 app.use('/api/writing', writingRoute);
+
+const sourcesRoute = require('../route/sources.route');
+app.use('/api/sources', sourcesRoute);
 
 // define word
 const { defineWord } = require('../services/defineService');
